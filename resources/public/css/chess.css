@@ -1,0 +1,90 @@
+.cell {
+	position: relative;
+}
+
+.cellimage {
+	position: relative;
+	width: 80px;
+	height: 80px;
+}
+
+.chesspiece {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	z-index: 2;
+	left: 14px;
+	top: -14px;
+}
+
+.white.pawn {
+    background: url(../img/Chess_Pieces_Sprite.png) -250px 0;
+	background-size: 600%;
+}
+
+.black.pawn {
+    background: url(../img/Chess_Pieces_Sprite.png) -250px 50px;
+	background-size: 600%;
+}
+
+.white.rook {
+    background: url(../img/Chess_Pieces_Sprite.png) -200px 0;
+	background-size: 600%;
+}
+
+.black.rook {
+    background: url(../img/Chess_Pieces_Sprite.png) -200px 50px;
+	background-size: 600%;
+}
+
+.white.knight {
+    background: url(../img/Chess_Pieces_Sprite.png) -150px 0;
+	background-size: 600%;
+}
+
+.black.knight {
+    background: url(../img/Chess_Pieces_Sprite.png) -150px 50px;
+	background-size: 600%;
+}
+
+.white.bishop {
+    background: url(../img/Chess_Pieces_Sprite.png) -100px 0;
+	background-size: 600%;
+}
+
+.black.bishop{
+    background: url(../img/Chess_Pieces_Sprite.png) -100px 50px;
+	background-size: 600%;
+}
+
+.white.queen {
+    background: url(../img/Chess_Pieces_Sprite.png) -50px 0;
+	background-size: 600%;
+}
+
+.black.queen {
+    background: url(../img/Chess_Pieces_Sprite.png) -50px 50px;
+	background-size: 600%;
+}
+
+.white.king {
+    background: url(../img/Chess_Pieces_Sprite.png) 0 0;
+	background-size: 600%;
+}
+
+.black.king {
+    background: url(../img/Chess_Pieces_Sprite.png) 0 50px;
+	background-size: 600%;
+}
+
+.chesspiece.fire {
+	background-color: red;
+}
+
+.chesspiece.water {
+	background-color: blue;
+}
+
+.chesspiece.earth {
+	background-color: green;
+}

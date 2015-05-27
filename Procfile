@@ -1,0 +1,1 @@
+web: java $JVM_OPTS -cp target/elemental-chess.jar clojure.main -m elemental-chess.core

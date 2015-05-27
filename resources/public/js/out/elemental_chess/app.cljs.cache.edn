@@ -1,0 +1,2 @@
+;; Analyzed by ClojureScript 0.0-3297
+{:name elemental-chess.app, :doc nil, :excludes #{}, :use-macros nil, :require-macros {figwheel figwheel.client, figwheel.client figwheel.client}, :uses nil, :requires {core elemental-chess.core, elemental-chess.core elemental-chess.core, figwheel figwheel.client, figwheel.client figwheel.client, weasel weasel.repl, weasel.repl weasel.repl}, :imports nil, :cljs.analyzer/constants {:seen #{:verbose :jsload-callback :websocket-url}, :order [:websocket-url :jsload-callback :verbose]}}
