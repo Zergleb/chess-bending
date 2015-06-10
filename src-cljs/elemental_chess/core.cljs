@@ -12,17 +12,19 @@
             [ajax.core :refer [GET POST]])
   (:import goog.History))
 
-(def app-state
+(enable-console-print!)
+
+(defonce app-state
   (r/atom
    {:gameboard [
-    ["wr" "wk" "wb" "wq" "wK" "wbe" "wkf" "wrw"]
-    ["wp" "wp" "wp" "wp" "wp" "wp" "wp" "wp"]
+    ["wrn" "wkn" "wbn" "wKn" "wqn" "wbn" "wkn" "wrn"]
+    ["wpn" "wpn" "wpn" "wpn" "wpn" "wpn" "wpn" "wpn"]
     ["0" "0" "0" "0" "0" "0" "0" "0"]
     ["0" "0" "0" "0" "0" "0" "0" "0"]
     ["0" "0" "0" "0" "0" "0" "0" "0"]
     ["0" "0" "0" "0" "0" "0" "0" "0"]
-    ["bp" "bp" "bp" "bp" "bp" "bp" "bp" "bp"]
-    ["brf" "bke" "bbw" "bq" "bK" "bb" "bk" "br"]
+    ["bpn" "bpn" "bpn" "bpn" "bpn" "bpn" "bpn" "bpn"]
+    ["brn" "bkn" "bbn" "bKn" "bqn" "bbn" "bkn" "brn"]
     ]
    }
   )
@@ -42,12 +44,70 @@
     "b" {:class "black"}
   }
   :elements {
-    "f" {:class "fire"}
-    "w" {:class "water"}
-    "e" {:class "earth"}
-    "n" {:class "normal"}
+    "f" {:class "fire" :next "w"}
+    "w" {:class "water" :next "e"}
+    "e" {:class "earth" :next "n"}
+    "n" {:class "normal", :next "f"}
   }
 })
+
+(defn drag-start [row column]
+  (fn [ev] (do 
+    (.setData (.-dataTransfer ev) "row" row)
+    (.setData (.-dataTransfer ev) "column" column)
+  ))
+);; for Firefox. You MUST set something as data.
+
+(defn changeCellOnBoard [board row column newValue]
+  (println newValue)
+  (let [gameRow (get board row)]
+    (let [newGameRow (assoc gameRow column newValue)] 
+
+      (assoc board row newGameRow)
+    )
+  )
+)
+
+(defn changeElement [row column]
+  (fn [ev]
+  (let [gamerow (get (:gameboard @app-state) row)]
+  (let [piece (get gamerow column)]
+  (let [element (nth piece 2 "")] 
+  (let [newelement (:next (get (:elements game-consts) element))]
+  (let [newPiece (str (.substring piece 0 2) newelement)]
+    (swap! app-state assoc :gameboard (changeCellOnBoard (:gameboard @app-state) row column newPiece))
+  ))))))
+)
+
+(defn allow-drop [e]
+  (.preventDefault e))
+
+(defn move-piece-transaction [appstate fromRow fromColumn toRow toColumn]
+  (def gameboard (:gameboard appstate))
+  (def gameRow (get gameboard fromRow))
+  (def piece (get gameRow fromColumn))
+  (def newGameRow (assoc gameRow fromColumn ""))
+  (def newGameBoard (assoc gameboard fromRow newGameRow))
+
+  (def secondGameRow (get newGameBoard toRow))
+  (def secondNewGameRow (assoc secondGameRow toColumn piece))
+  (def secondNewGameBoard (assoc newGameBoard toRow secondNewGameRow))
+
+  (assoc appstate :gameboard secondNewGameBoard)
+)
+
+(defn move-piece [fromRow fromColumn toRow toColumn]
+  (swap! app-state move-piece-transaction (js/parseInt fromRow) (js/parseInt fromColumn) toRow toColumn)
+
+  (println piece)
+  (println (str fromRow "-" fromColumn " -> " toRow "-" toColumn))
+)
+
+(defn dropAction [row column] 
+  (fn [ev] 
+    (.preventDefault ev)       
+    (move-piece (.getData (.-dataTransfer ev) "row") (.getData (.-dataTransfer ev) "column") row column)
+))
 
 (defn navbar []
   [:div.navbar.navbar-inverse.navbar-fixed-top
@@ -67,6 +127,11 @@
 (defn game-cell [cell row column]
   (def cell-color (if (even? (+ row column)) "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP4/x8AAwAB/2+Bq7YAAAAASUVORK5CYII=" "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mMwTHD6DwADbAHTRVnX2wAAAABJRU5ErkJggg=="))
     [:span.cell 
+      {
+        :on-drag-over allow-drop
+        :on-drag-enter allow-drop
+        :on-drop (dropAction row column)
+      }
       [:img.cellimage {:src cell-color}] 
       (cond 
         (> (count cell) 1) 
@@ -75,7 +140,12 @@
             (def playerClass (:class (get (:players game-consts) (first cellArray))))
             (def pieceClass (:class (get (:pieces game-consts) (nth cell 1))))
             (def elementClass (:class (get (:elements game-consts) (nth cell 2 "n"))))
-            [:span {:class (str playerClass " " pieceClass " " elementClass " chesspiece")}]
+            [:span {
+                    :class (str playerClass " " pieceClass " " elementClass " chesspiece")
+                    :draggable true ; -> otherwise the browser won't let you drag it
+                    :on-drag-start (drag-start row column)
+                    :on-click (changeElement row column)
+                   }]
           )
         :else nil 
       )
